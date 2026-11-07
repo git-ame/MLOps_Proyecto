@@ -1,0 +1,8 @@
+.venv/
+__pycache__/
+*.pyc
+mlflow_store/
+mlflow.db
+mlruns/
+.pytest_cache/
+*.zip

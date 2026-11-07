@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata: { name: mlflow-data }
+spec:
+  accessModes: ["ReadWriteOnce"]
+  resources: { requests: { storage: 1Gi } }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: { name: mlflow, labels: { app: mlflow } }
+spec:
+  replicas: 1            # SQLite + volumen RWO: una sola réplica por diseño (ver ARQUITECTURA.md)
+  strategy: { type: Recreate }
+  selector: { matchLabels: { app: mlflow } }
+  template:
+    metadata: { labels: { app: mlflow } }
+    spec:
+      containers:
+        - name: mlflow
+          image: desercion-mlflow:1.0
+          imagePullPolicy: IfNotPresent
+          ports: [{ containerPort: 5000 }]
+          volumeMounts: [{ name: data, mountPath: /mlflow/data }]
+          readinessProbe: { httpGet: { path: /health, port: 5000 }, initialDelaySeconds: 10, periodSeconds: 5 }
+          livenessProbe: { httpGet: { path: /health, port: 5000 }, initialDelaySeconds: 30, periodSeconds: 10 }
+      volumes:
+        - name: data
+          persistentVolumeClaim: { claimName: mlflow-data }
+---
+apiVersion: v1
+kind: Service
+metadata: { name: mlflow }
+spec:
+  type: NodePort
+  selector: { app: mlflow }
+  ports: [{ port: 5000, targetPort: 5000, nodePort: 30500 }]

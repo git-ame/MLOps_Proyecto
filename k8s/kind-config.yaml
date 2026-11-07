@@ -1,0 +1,10 @@
+# Clúster kind con 2 nodos worker; expone NodePort 30080 (API) y 30500 (MLflow) en localhost.
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+  - role: control-plane
+    extraPortMappings:
+      - { containerPort: 30080, hostPort: 8080, protocol: TCP }
+      - { containerPort: 30500, hostPort: 5001, protocol: TCP }
+  - role: worker
+  - role: worker

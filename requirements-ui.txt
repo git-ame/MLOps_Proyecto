@@ -1,0 +1,4 @@
+# Solo para la interfaz (punto extra). Se instala aparte del servicio de inferencia.
+streamlit>=1.40
+requests==2.34.2
+pandas==3.1.1

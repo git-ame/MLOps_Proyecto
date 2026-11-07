@@ -1,0 +1,17 @@
+# Pila local sin Kubernetes: MLflow + API. Uso: docker compose up --build
+services:
+  mlflow:
+    build: { context: ., dockerfile: Dockerfile.mlflow }
+    image: desercion-mlflow:1.0
+    ports: ["5000:5000"]
+    volumes: ["mlflow_data:/mlflow/data"]
+  api:
+    build: { context: ., dockerfile: Dockerfile }
+    image: desercion-api:1.0
+    ports: ["8000:8000"]
+    environment:
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+      POD_NAME: api-compose
+    depends_on: [mlflow]
+volumes:
+  mlflow_data: {}
